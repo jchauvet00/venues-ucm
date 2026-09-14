@@ -125,17 +125,27 @@ function tabUrl(key){
 }
 
 function isIncluido(v){ return typeof v==='string' && v.trim().toUpperCase()==='INCLUIDO'; }
+// Google Sheets exports prices with MX locale: "$351.480" (period = thousands sep, $ prefix)
+// Strip $ and periods (thousands), replace comma with dot for JS parseFloat
+function parsePrice(v){
+  if(!v && v!==0) return null;
+  const s=String(v).trim();
+  if(!s) return null;
+  const clean=s.replace(/\$/g,'').replace(/\./g,'').replace(/,/g,'.');
+  const n=parseFloat(clean);
+  return isNaN(n)?null:n;
+}
 function fmt(v){
   if(isIncluido(v)) return '<span class="badge-incluido">&#10003; Incluido</span>';
-  const n=parseFloat(String(v).replace(/,/g,'')); if(!n||isNaN(n)) return '<span class="tbd">Por cotizar</span>';
+  const n=parsePrice(v); if(n===null||!n) return '<span class="tbd">Por cotizar</span>';
   return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function fmtPlain(v){
   if(isIncluido(v)) return 'Incluido';
-  const n=parseFloat(String(v).replace(/,/g,'')); if(!n||isNaN(n)) return 'Por cotizar';
+  const n=parsePrice(v); if(n===null||!n) return 'Por cotizar';
   return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function toNum(v){ if(isIncluido(v)) return 0; const n=parseFloat(String(v).replace(/,/g,'')); return isNaN(n)?0:n; }
+function toNum(v){ if(isIncluido(v)) return 0; const n=parsePrice(v); return n??0; }
 
 function parseCSV(txt){
   const rows=[]; let i=0,L=txt.length;

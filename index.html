@@ -91,9 +91,15 @@
 <footer>Union de Credito Mexicano &nbsp;·&nbsp; 32 Aniversario 2026 &nbsp;·&nbsp; Uso interno</footer>
 
 <script>
-// ── CONFIGURA AQUI la URL del Google Sheet publicado como CSV ──
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1IJZBXMdRl98sDqE5Du3ZBVZd4D-tXraS/pub?output=csv';
-// ──────────────────────────────────────────────────────────────
+// ── Google Sheets publicado como CSV ──
+const PUBLISHED_ID = '2PACX-1vRSE1UYtQS9H87a8lG4oWxbt3kxIra0p_XXlfYjmlgDl49yfk77XcXlejZb1irr7gnGbBpaynwq7zMk';
+const TABS = {
+  '15-inspace': 1026995192,
+  '15-camino':  1988844649,
+  '16-inspace': 745391160,
+  '16-marquis': 192206302,
+};
+// ──────────────────────────────────────
 
 const CATS_META = {
   renta:       {icon:'🏛️', label:'Renta de Venue'},
@@ -114,23 +120,27 @@ const VENUE_IDX = {'15-inspace':0,'15-camino':1,'16-inspace':0,'16-marquis':1};
 const LAYOUT    = {'15':['inspace','camino'],'16':['inspace','marquis']};
 const fixedTotals = {};
 
+function tabUrl(key){
+  return `https://docs.google.com/spreadsheets/d/e/${PUBLISHED_ID}/pub?gid=${TABS[key]}&single=true&output=csv&t=${Date.now()}`;
+}
+
 function isIncluido(v){ return typeof v==='string' && v.trim().toUpperCase()==='INCLUIDO'; }
 function fmt(v){
   if(isIncluido(v)) return '<span class="badge-incluido">&#10003; Incluido</span>';
-  const n=parseFloat(v); if(!n||isNaN(n)) return '<span class="tbd">Por cotizar</span>';
+  const n=parseFloat(String(v).replace(/,/g,'')); if(!n||isNaN(n)) return '<span class="tbd">Por cotizar</span>';
   return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function fmtPlain(v){
   if(isIncluido(v)) return 'Incluido';
-  const n=parseFloat(v); if(!n||isNaN(n)) return 'Por cotizar';
+  const n=parseFloat(String(v).replace(/,/g,'')); if(!n||isNaN(n)) return 'Por cotizar';
   return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function toNum(v){ if(isIncluido(v)) return 0; const n=parseFloat(v); return isNaN(n)?0:n; }
+function toNum(v){ if(isIncluido(v)) return 0; const n=parseFloat(String(v).replace(/,/g,'')); return isNaN(n)?0:n; }
 
 function parseCSV(txt){
   const rows=[]; let i=0,L=txt.length;
   while(i<L){
-    const row=[]; 
+    const row=[];
     while(i<L && txt[i]!=='\n' && txt[i]!=='\r'){
       if(txt[i]==='"'){
         i++; let val='';
@@ -148,11 +158,29 @@ function parseCSV(txt){
   return rows;
 }
 
+// Parses a single-tab CSV (col A=categoria, col B=concepto, col C=tipo, col D=precio)
+// Skips header rows, blank rows, total rows — keeps only tipo=item/opcion/nota
+function parseTabRows(txt){
+  const raw = parseCSV(txt);
+  const result = [];
+  for(const row of raw){
+    const tipo = (row[2]||'').trim().toLowerCase();
+    if(tipo==='item'||tipo==='opcion'||tipo==='nota'){
+      result.push({
+        categoria: (row[0]||'').trim().toLowerCase(),
+        concepto:  (row[1]||'').trim(),
+        tipo,
+        precio:    (row[3]||'').trim(),
+      });
+    }
+  }
+  return result;
+}
+
 function buildCard(day, venueKey, rows){
   const vm=VENUES_META[venueKey], idx=VENUE_IDX[day+'-'+venueKey]??0, cid='c'+day+venueKey;
-  const vrows=rows.filter(r=>String(r.dia)===String(day)&&r.venue===venueKey);
   const bycat={};
-  for(const r of vrows){ if(!bycat[r.categoria])bycat[r.categoria]=[]; bycat[r.categoria].push(r); }
+  for(const r of rows){ if(!bycat[r.categoria])bycat[r.categoria]=[]; bycat[r.categoria].push(r); }
   let fixedTotal=0;
   const catSections=CATS_ORDER.map(catKey=>{
     const catRows=bycat[catKey]; if(!catRows||!catRows.length)return '';
@@ -189,26 +217,38 @@ function showDay(id,btn){
   document.getElementById(id).classList.add('active'); btn.classList.add('active');
 }
 
+async function fetchTab(key){
+  const res=await fetch(tabUrl(key));
+  if(!res.ok)throw new Error('HTTP '+res.status+' en pestaña '+key);
+  return parseTabRows(await res.text());
+}
+
 async function loadData(){
-  if(SHEET_CSV_URL==='PENDIENTE'){
-    document.querySelectorAll('.venues-grid').forEach(g=>{g.innerHTML='<p style="grid-column:1/-1;padding:32px;color:#999;text-align:center">&#9881;&#65039; Configura la URL de Google Sheets en index.html (SHEET_CSV_URL).</p>';});
+  // Check all GIDs are set
+  const missing=Object.entries(TABS).filter(([,v])=>!v).map(([k])=>k);
+  if(missing.length){
+    document.querySelectorAll('.venues-grid').forEach(g=>{
+      g.innerHTML=`<p style="grid-column:1/-1;padding:32px;color:#999;text-align:center">&#9881;&#65039; Faltan los IDs de pestaña para: <strong>${missing.join(', ')}</strong>.<br>Revisa el archivo index.html.</p>`;
+    });
     return;
   }
   try{
-    const sep=SHEET_CSV_URL.includes('?')?'&':'?';
-    const res=await fetch(SHEET_CSV_URL+sep+'t='+Date.now());
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const txt=await res.text();
-    const parsed=parseCSV(txt);
-    if(!parsed.length)throw new Error('CSV vacio');
-    const headers=parsed[0].map(h=>h.toLowerCase().trim());
-    const rows=parsed.slice(1).map(row=>{const o={};headers.forEach((h,i)=>o[h]=row[i]||'');return o;});
-    for(const [day,venues] of Object.entries(LAYOUT)){
-      document.getElementById('grid'+day).innerHTML=venues.map(v=>buildCard(day,v,rows)).join('');
-    }
+    // Fetch all 4 tabs in parallel
+    const [r15i,r15c,r16i,r16m]=await Promise.all([
+      fetchTab('15-inspace'),
+      fetchTab('15-camino'),
+      fetchTab('16-inspace'),
+      fetchTab('16-marquis'),
+    ]);
+    document.getElementById('grid15').innerHTML=
+      buildCard('15','inspace',r15i)+buildCard('15','camino',r15c);
+    document.getElementById('grid16').innerHTML=
+      buildCard('16','inspace',r16i)+buildCard('16','marquis',r16m);
   }catch(e){
     console.error(e);
-    document.querySelectorAll('.venues-grid').forEach(g=>{g.innerHTML=`<p style="grid-column:1/-1;padding:32px;color:#999;text-align:center">&#9888;&#65039; No se pudo cargar Google Sheets. Verifica que el archivo esta publicado como CSV.<br><small>${e.message}</small></p>`;});
+    document.querySelectorAll('.venues-grid').forEach(g=>{
+      g.innerHTML=`<p style="grid-column:1/-1;padding:32px;color:#999;text-align:center">&#9888;&#65039; No se pudo cargar Google Sheets. Verifica que la hoja esta publicada como CSV.<br><small>${e.message}</small></p>`;
+    });
   }
 }
 loadData();

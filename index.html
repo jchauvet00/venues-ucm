@@ -4,31 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Venues — UCM 32 Aniversario</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{--wine:#A84055;--gold:#C9BB7A;--dark:#0A0A0A;--panel:#161616;--bg:#F4F2EF;--card:#FFFFFF;--text:#1A1A1A;--muted:#6B6B6B;--border:#E4E1DA;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
-
   header{background:var(--dark);padding:36px 24px 0;text-align:center;}
   .logo-pill{display:inline-flex;align-items:center;background:white;border-radius:14px;padding:14px 36px;}
   .logo-pill img{height:60px;display:block;}
   .header-stripe{height:5px;background:linear-gradient(90deg,var(--wine),var(--gold),var(--wine));}
   .header-sub{background:var(--panel);text-align:center;padding:14px;color:#888;font-size:12px;letter-spacing:2px;text-transform:uppercase;}
   .header-sub strong{color:var(--gold);}
-
   .day-nav{background:var(--panel);display:flex;justify-content:center;gap:8px;padding:12px 24px 16px;border-bottom:1px solid #2A2A2A;}
   .day-btn{background:transparent;border:1px solid #333;color:#777;padding:10px 32px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all .18s;}
   .day-btn:hover{border-color:var(--gold);color:var(--gold);}
   .day-btn.active{background:var(--gold);border-color:var(--gold);color:var(--dark);}
-
   .day-section{display:none;}
   .day-section.active{display:block;}
   .venues-grid{max-width:1220px;margin:0 auto;padding:28px 16px 48px;display:grid;grid-template-columns:1fr 1fr;gap:24px;}
   @media(max-width:760px){.venues-grid{grid-template-columns:1fr;}}
-
   .loading{grid-column:1/-1;text-align:center;padding:60px;color:var(--muted);font-size:15px;}
-
   .venue-card{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.09);}
   .venue-header{padding:22px 24px 18px;color:white;position:relative;}
   .venue-header.inspace{background:var(--wine);}
@@ -37,7 +31,6 @@
   .venue-header h2{font-size:24px;font-weight:700;}
   .vh-sub{font-size:12px;opacity:.7;margin-top:4px;letter-spacing:.5px;text-transform:uppercase;}
   .venue-badge{position:absolute;top:18px;right:20px;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;}
-
   .cat-row{border-bottom:1px solid var(--border);}
   .cat-row:last-of-type{border-bottom:none;}
   details summary{display:flex;align-items:center;justify-content:space-between;padding:15px 22px;cursor:pointer;list-style:none;user-select:none;transition:background .15s;}
@@ -52,29 +45,24 @@
   details[open] .cat-arrow{transform:rotate(180deg);}
   .cat-body{padding:0 22px 14px;}
   .cat-note{font-size:12px;color:var(--muted);margin-bottom:10px;font-style:italic;}
-
   .line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13.5px;}
   .line:last-child{border-bottom:none;}
   .line-desc{color:var(--muted);}
   .line-price{font-weight:600;}
   .tbd{color:#C0BDB8;font-style:italic;font-weight:400;}
   .badge-incluido{display:inline-block;background:#2D6A4F;color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.4px;}
-
   .cat-opts{display:flex;flex-direction:column;}
   .cat-opt{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border);cursor:pointer;}
   .cat-opt:last-child{border-bottom:none;}
   .cat-opt input[type="radio"]{accent-color:var(--wine);cursor:pointer;width:15px;height:15px;flex-shrink:0;}
   .cat-opt-name{flex:1;font-size:14px;font-weight:600;}
   .cat-opt-price{font-weight:700;font-size:14px;color:var(--wine);white-space:nowrap;}
-
   .grand-total-row{margin:4px 18px 20px;background:var(--dark);border-radius:11px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;}
   .gt-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;}
   .gt-amount{font-size:22px;font-weight:800;color:var(--gold);}
-
   .notes-section{margin:0 18px 20px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
   .notes-label{background:#3A5A7A;color:white;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:.5px;}
   .notes-body{padding:12px 16px;font-size:13px;color:var(--muted);background:#F7FAFD;line-height:1.6;white-space:pre-wrap;min-height:40px;}
-
   footer{text-align:center;padding:24px;font-size:12px;color:#888;background:var(--panel);margin-top:8px;}
 </style>
 </head>
@@ -94,15 +82,19 @@
 </nav>
 
 <div id="day15" class="day-section active">
-  <div class="venues-grid" id="grid15"><div class="loading">⏳ Cargando datos...</div></div>
+  <div class="venues-grid" id="grid15"><div class="loading">Cargando datos...</div></div>
 </div>
 <div id="day16" class="day-section">
-  <div class="venues-grid" id="grid16"><div class="loading">⏳ Cargando datos...</div></div>
+  <div class="venues-grid" id="grid16"><div class="loading">Cargando datos...</div></div>
 </div>
 
 <footer>Union de Credito Mexicano &nbsp;·&nbsp; 32 Aniversario 2026 &nbsp;·&nbsp; Uso interno</footer>
 
 <script>
+// ── CONFIGURA AQUI la URL del Google Sheet publicado como CSV ──
+const SHEET_CSV_URL = 'PENDIENTE';
+// ──────────────────────────────────────────────────────────────
+
 const CATS_META = {
   renta:       {icon:'🏛️', label:'Renta de Venue'},
   video:       {icon:'🎬', label:'Video'},
@@ -113,185 +105,113 @@ const CATS_META = {
   catering:    {icon:'🍽️', label:'Catering'},
 };
 const CATS_ORDER = ['renta','video','audio','iluminacion','mobiliario','extras','catering'];
-
 const VENUES_META = {
   inspace: {nombre:'Inspace',     css:'inspace'},
   camino:  {nombre:'Camino Real', css:'camino'},
   marquis: {nombre:'Marquis',     css:'marquis'},
 };
-
-// Map sheet name → venue key
-const SHEET_VENUE = {
-  '15 - Inspace':     {day:'15', key:'inspace',  idx:0},
-  '15 - Camino Real': {day:'15', key:'camino',   idx:1},
-  '16 - Inspace':     {day:'16', key:'inspace',  idx:0},
-  '16 - Marquis':     {day:'16', key:'marquis',  idx:1},
-};
-
+const VENUE_IDX = {'15-inspace':0,'15-camino':1,'16-inspace':0,'16-marquis':1};
+const LAYOUT    = {'15':['inspace','camino'],'16':['inspace','marquis']};
 const fixedTotals = {};
 
-function isIncluido(v) { return typeof v === 'string' && v.trim().toUpperCase() === 'INCLUIDO'; }
-function pesos(v) {
-  if (isIncluido(v)) return '<span class="badge-incluido">✓ Incluido</span>';
-  const n = Number(v);
-  if (!n) return '<span class="tbd">Por cotizar</span>';
-  return '$ ' + n.toLocaleString('es-MX', {minimumFractionDigits:0});
+function isIncluido(v){ return typeof v==='string' && v.trim().toUpperCase()==='INCLUIDO'; }
+function fmt(v){
+  if(isIncluido(v)) return '<span class="badge-incluido">&#10003; Incluido</span>';
+  const n=parseFloat(v); if(!n||isNaN(n)) return '<span class="tbd">Por cotizar</span>';
+  return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function pesosPlain(v) {
-  if (isIncluido(v)) return '✓ Incluido';
-  const n = Number(v);
-  if (!n) return 'Por cotizar';
-  return '$ ' + n.toLocaleString('es-MX', {minimumFractionDigits:0});
+function fmtPlain(v){
+  if(isIncluido(v)) return 'Incluido';
+  const n=parseFloat(v); if(!n||isNaN(n)) return 'Por cotizar';
+  return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function toNum(v) { return isIncluido(v) ? 0 : (Number(v) || 0); }
+function toNum(v){ if(isIncluido(v)) return 0; const n=parseFloat(v); return isNaN(n)?0:n; }
 
-// Parse rows from a sheet (array of arrays after header row)
-function parseSheetRows(sheetData) {
-  // Find the header row index: where first cell === "Categoria"
-  let headerIdx = -1;
-  for (let i = 0; i < sheetData.length; i++) {
-    if (sheetData[i] && String(sheetData[i][0] || '').trim() === 'Categoria') {
-      headerIdx = i; break;
+function parseCSV(txt){
+  const rows=[]; let i=0,L=txt.length;
+  while(i<L){
+    const row=[]; 
+    while(i<L && txt[i]!=='\n' && txt[i]!=='\r'){
+      if(txt[i]==='"'){
+        i++; let val='';
+        while(i<L){ if(txt[i]==='"'){ if(txt[i+1]==='"'){val+='"';i+=2;}else{i++;break;} }else{val+=txt[i++];} }
+        row.push(val); if(i<L&&txt[i]===',')i++;
+      }else{
+        let val='';
+        while(i<L&&txt[i]!==','&&txt[i]!=='\n'&&txt[i]!=='\r')val+=txt[i++];
+        row.push(val.trim()); if(i<L&&txt[i]===',')i++;
+      }
     }
-  }
-  if (headerIdx < 0) return [];
-
-  const rows = [];
-  for (let i = headerIdx + 1; i < sheetData.length; i++) {
-    const r = sheetData[i];
-    if (!r) continue;
-    const cat   = String(r[0] || '').trim();
-    const conc  = String(r[1] || '').trim();
-    const tipo  = String(r[2] || '').trim();
-    const rawPrecio = r[3];
-    const precio = (typeof rawPrecio === 'string' && rawPrecio.trim().toUpperCase() === 'INCLUIDO') ? 'INCLUIDO' : toNum(rawPrecio);
-    if (!tipo || tipo === 'header' || !cat) continue;
-    rows.push({cat, conc, tipo, precio});
+    if(i<L&&txt[i]==='\r')i++; if(i<L&&txt[i]==='\n')i++;
+    if(row.some(c=>c!==''))rows.push(row);
   }
   return rows;
 }
 
-function buildCard(sheetName, rows, meta) {
-  const vm = VENUES_META[meta.key];
-  const cid = `c${meta.day}${meta.key}`;
-
-  // Group rows by category
-  const bycat = {};
-  for (const r of rows) {
-    if (!bycat[r.cat]) bycat[r.cat] = [];
-    bycat[r.cat].push(r);
-  }
-
-  let fixedTotal = 0;
-
-  const catSections = CATS_ORDER.map(catKey => {
-    const catRows = bycat[catKey];
-    if (!catRows || !catRows.length) return '';
-    const cm = CATS_META[catKey];
-    const isCat = catKey === 'catering';
-    let subtotal = 0;
-    let body = '';
-
-    if (isCat) {
-      body = `<p class="cat-note">Selecciona la opcion que mejor se adapte:</p><div class="cat-opts">`;
-      catRows.forEach(r => {
-        body += `<label class="cat-opt">
-          <input type="radio" name="${cid}-cat" value="${r.precio}" onchange="onCat('${cid}')">
-          <span class="cat-opt-name">${r.conc}</span>
-          <span class="cat-opt-price">${pesosPlain(r.precio)}</span>
-        </label>`;
+function buildCard(day, venueKey, rows){
+  const vm=VENUES_META[venueKey], idx=VENUE_IDX[day+'-'+venueKey]??0, cid='c'+day+venueKey;
+  const vrows=rows.filter(r=>String(r.dia)===String(day)&&r.venue===venueKey);
+  const bycat={};
+  for(const r of vrows){ if(!bycat[r.categoria])bycat[r.categoria]=[]; bycat[r.categoria].push(r); }
+  let fixedTotal=0;
+  const catSections=CATS_ORDER.map(catKey=>{
+    const catRows=bycat[catKey]; if(!catRows||!catRows.length)return '';
+    const cm=CATS_META[catKey], isCat=catKey==='catering'; let subtotal=0, body='';
+    if(isCat){
+      body='<p class="cat-note">Selecciona la opcion que mejor se adapte:</p><div class="cat-opts">';
+      catRows.forEach(r=>{
+        body+=`<label class="cat-opt"><input type="radio" name="${cid}-cat" value="${r.precio}" onchange="onCat('${cid}')"><span class="cat-opt-name">${r.concepto}</span><span class="cat-opt-price">${fmtPlain(r.precio)}</span></label>`;
       });
-      body += `</div>`;
-    } else {
-      catRows.forEach(r => {
-        subtotal += r.precio;
-        body += `<div class="line"><span class="line-desc">${r.conc}</span><span class="line-price">${pesos(r.precio)}</span></div>`;
-      });
-      fixedTotal += subtotal;
+      body+='</div>';
+    }else{
+      catRows.forEach(r=>{ subtotal+=toNum(r.precio); body+=`<div class="line"><span class="line-desc">${r.concepto}</span><span class="line-price">${fmt(r.precio)}</span></div>`; });
+      fixedTotal+=subtotal;
     }
-
-    const tid = `${cid}-${catKey}-t`;
-    return `<div class="cat-row"><details>
-      <summary>
-        <span class="cat-left"><span class="cat-icon">${cm.icon}</span><span class="cat-name">${cm.label}</span></span>
-        <span class="cat-right"><span class="cat-amt" id="${tid}">${isCat ? 'Seleccionar' : pesosPlain(subtotal)}</span><span class="cat-arrow">▼</span></span>
-      </summary>
-      <div class="cat-body">${body}</div>
-    </details></div>`;
+    return `<div class="cat-row"><details><summary><span class="cat-left"><span class="cat-icon">${cm.icon}</span><span class="cat-name">${cm.label}</span></span><span class="cat-right"><span class="cat-amt" id="${cid}-${catKey}-t">${isCat?'Seleccionar':fmtPlain(subtotal)}</span><span class="cat-arrow">&#9660;</span></span></summary><div class="cat-body">${body}</div></details></div>`;
   }).join('');
-
-  fixedTotals[cid] = fixedTotal;
-
-  // Notes
-  const notaRow = rows.find(r => r.tipo === 'nota');
-  const notaText = notaRow && notaRow.conc ? notaRow.conc : '';
-  const notaSection = `<div class="notes-section">
-    <div class="notes-label">📝 Notas</div>
-    <div class="notes-body">${notaText || '<span class="tbd">Sin notas</span>'}</div>
-  </div>`;
-
-  return `<div class="venue-card">
-    <div class="venue-header ${vm.css}">
-      <h2>${vm.nombre}</h2>
-      <div class="vh-sub">Venue ${meta.idx + 1} · ${meta.day} de octubre</div>
-      <span class="venue-badge">V${meta.idx + 1}</span>
-    </div>
-    ${catSections}
-    <div class="grand-total-row">
-      <span class="gt-label">Total estimado</span>
-      <span class="gt-amount" id="${cid}-grand">${pesosPlain(fixedTotal)}</span>
-    </div>
-    ${notaSection}
-  </div>`;
+  fixedTotals[cid]=fixedTotal;
+  const notaRow=(bycat['notas']||[]).find(r=>r.tipo==='nota');
+  const notaText=notaRow?.concepto||'';
+  return `<div class="venue-card"><div class="venue-header ${vm.css}"><h2>${vm.nombre}</h2><div class="vh-sub">Venue ${idx+1} &middot; ${day} de octubre</div><span class="venue-badge">V${idx+1}</span></div>${catSections}<div class="grand-total-row"><span class="gt-label">Total estimado</span><span class="gt-amount" id="${cid}-grand">${fmtPlain(fixedTotal)}</span></div><div class="notes-section"><div class="notes-label">&#128221; Notas</div><div class="notes-body">${notaText||'<span class="tbd">Sin notas</span>'}</div></div></div>`;
 }
 
-function onCat(cid) {
-  const sel = document.querySelector(`input[name="${cid}-cat"]:checked`);
-  const catVal = sel ? toNum(sel.value) : 0;
-  const grandEl = document.getElementById(`${cid}-grand`);
-  if (grandEl) grandEl.textContent = pesosPlain((fixedTotals[cid] || 0) + catVal);
-  const catTid = document.getElementById(`${cid}-catering-t`);
-  if (catTid) catTid.textContent = pesosPlain(catVal);
+function onCat(cid){
+  const sel=document.querySelector(`input[name="${cid}-cat"]:checked`);
+  const catVal=sel?toNum(sel.value):0;
+  const el=document.getElementById(cid+'-grand');
+  if(el)el.textContent=fmtPlain((fixedTotals[cid]||0)+catVal);
+  const ct=document.getElementById(cid+'-catering-t');
+  if(ct)ct.textContent=fmtPlain(catVal);
+}
+function showDay(id,btn){
+  document.querySelectorAll('.day-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active'); btn.classList.add('active');
 }
 
-function showDay(id, btn) {
-  document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-}
-
-// Cards organized by day
-const cards = {'15':[], '16':[]};
-
-async function loadExcel() {
-  try {
-    const res = await fetch('venuedata.xlsx?t=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const buf = await res.arrayBuffer();
-    const wb = XLSX.read(buf, {type:'array'});
-
-    for (const [sheetName, meta] of Object.entries(SHEET_VENUE)) {
-      const ws = wb.Sheets[sheetName];
-      if (!ws) { console.warn('Sheet not found:', sheetName); continue; }
-      const data = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-      const rows = parseSheetRows(data);
-      const html = buildCard(sheetName, rows, meta);
-      cards[meta.day][meta.idx] = html;
+async function loadData(){
+  if(SHEET_CSV_URL==='PENDIENTE'){
+    document.querySelectorAll('.venues-grid').forEach(g=>{g.innerHTML='<p style="grid-column:1/-1;padding:32px;color:#999;text-align:center">&#9881;&#65039; Configura la URL de Google Sheets en index.html (SHEET_CSV_URL).</p>';});
+    return;
+  }
+  try{
+    const sep=SHEET_CSV_URL.includes('?')?'&':'?';
+    const res=await fetch(SHEET_CSV_URL+sep+'t='+Date.now());
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const txt=await res.text();
+    const parsed=parseCSV(txt);
+    if(!parsed.length)throw new Error('CSV vacio');
+    const headers=parsed[0].map(h=>h.toLowerCase().trim());
+    const rows=parsed.slice(1).map(row=>{const o={};headers.forEach((h,i)=>o[h]=row[i]||'');return o;});
+    for(const [day,venues] of Object.entries(LAYOUT)){
+      document.getElementById('grid'+day).innerHTML=venues.map(v=>buildCard(day,v,rows)).join('');
     }
-
-    document.getElementById('grid15').innerHTML = (cards['15'] || []).join('') || '<p style="padding:24px;color:#999">Sin datos para el dia 15.</p>';
-    document.getElementById('grid16').innerHTML = (cards['16'] || []).join('') || '<p style="padding:24px;color:#999">Sin datos para el dia 16.</p>';
-
-  } catch(e) {
+  }catch(e){
     console.error(e);
-    document.querySelectorAll('.venues-grid').forEach(g => {
-      g.innerHTML = '<p style="grid-column:1/-1;padding:32px;color:#999;text-align:center">⚠️ No se pudo cargar venuedata.xlsx — verifica que el archivo existe en el repositorio.</p>';
-    });
+    document.querySelectorAll('.venues-grid').forEach(g=>{g.innerHTML=`<p style="grid-column:1/-1;padding:32px;color:#999;text-align:center">&#9888;&#65039; No se pudo cargar Google Sheets. Verifica que el archivo esta publicado como CSV.<br><small>${e.message}</small></p>`;});
   }
 }
-
-loadExcel();
+loadData();
 </script>
 </body>
 </html>

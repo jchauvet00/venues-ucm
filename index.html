@@ -184,7 +184,7 @@ function parseCSV(txt){
   return rows;
 }
 
-// Parses a single-tab CSV (col A=categoria, col B=concepto, col C=tipo, col D=precio)
+// col A=categoria, col B=concepto, col C=tipo, col D=precio, col E=incluido (checkbox TRUE/FALSE)
 // Skips header rows, blank rows, total rows — keeps only tipo=item/opcion/nota
 function parseTabRows(txt){
   const raw = parseCSV(txt);
@@ -197,6 +197,7 @@ function parseTabRows(txt){
         concepto:  (row[1]||'').trim(),
         tipo,
         precio:    (row[3]||'').trim(),
+        incluido:  (row[4]||'').trim().toUpperCase() === 'TRUE',
       });
     }
   }
@@ -218,10 +219,15 @@ function buildCard(day, venueKey, rows){
       });
       body+='</div>';
     }else{
-      catRows.forEach(r=>{ subtotal+=toNum(r.precio); body+=`<div class="line"><span class="line-desc">${r.concepto}</span><span class="line-price">${fmt(r.precio)}</span></div>`; });
+      catRows.forEach(r=>{
+        const isInc = r.incluido || isIncluido(r.precio);
+        const dispPrice = isInc ? '<span class="badge-incluido">&#10003; Incluido</span>' : fmt(r.precio);
+        subtotal += isInc ? 0 : toNum(r.precio);
+        body += `<div class="line"><span class="line-desc">${r.concepto}</span><span class="line-price">${dispPrice}</span></div>`;
+      });
       fixedTotal+=subtotal;
     }
-    const hasIncluido=!isCat&&catRows.some(r=>isIncluido(r.precio));
+    const hasIncluido=!isCat&&catRows.some(r=>r.incluido||isIncluido(r.precio));
     const catAmt=isCat?'Seleccionar':subtotal>0?fmtPlain(subtotal):hasIncluido?'Incluido':'Por cotizar';
     return `<div class="cat-row"><details><summary><span class="cat-left"><span class="cat-icon">${cm.icon}</span><span class="cat-name">${cm.label}</span></span><span class="cat-right"><span class="cat-amt" id="${cid}-${catKey}-t">${catAmt}</span><span class="cat-arrow">&#9660;</span></span></summary><div class="cat-body">${body}</div></details></div>`;
   }).join('');
@@ -283,3 +289,4 @@ loadData();
 </script>
 </body>
 </html>
+test

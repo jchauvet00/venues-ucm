@@ -50,6 +50,7 @@
   .line-desc{color:var(--muted);}
   .line-price{font-weight:600;}
   .tbd{color:#C0BDB8;font-style:italic;font-weight:400;}
+  .line-nota{display:block;font-size:11px;color:#B0ACA6;font-style:italic;font-weight:400;margin-top:2px;}
   .badge-incluido{display:inline-block;background:#2D6A4F;color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.4px;}
   .cat-opts{display:flex;flex-direction:column;}
   .cat-opt{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border);cursor:pointer;}
@@ -186,6 +187,7 @@ function parseCSV(txt){
 
 // col A=categoria, col B=concepto, col C=tipo, col D=precio, col E=incluido (checkbox TRUE/FALSE)
 // Skips header rows, blank rows, total rows — keeps only tipo=item/opcion/nota
+// col A=categoria, col B=concepto, col C=tipo, col D=precio, col E=notas, col F=incluido (TRUE/FALSE)
 function parseTabRows(txt){
   const raw = parseCSV(txt);
   const result = [];
@@ -197,7 +199,8 @@ function parseTabRows(txt){
         concepto:  (row[1]||'').trim(),
         tipo,
         precio:    (row[3]||'').trim(),
-        incluido:  (row[4]||'').trim().toUpperCase() === 'TRUE',
+        notas:     (row[4]||'').trim(),
+        incluido:  (row[5]||'').trim().toUpperCase() === 'TRUE',
       });
     }
   }
@@ -223,7 +226,8 @@ function buildCard(day, venueKey, rows){
         const isInc = r.incluido || isIncluido(r.precio);
         const dispPrice = isInc ? '<span class="badge-incluido">&#10003; Incluido</span>' : fmt(r.precio);
         subtotal += isInc ? 0 : toNum(r.precio);
-        body += `<div class="line"><span class="line-desc">${r.concepto}</span><span class="line-price">${dispPrice}</span></div>`;
+        const notaHtml = r.notas ? `<span class="line-nota">${r.notas}</span>` : '';
+        body += `<div class="line"><span class="line-desc">${r.concepto}${notaHtml}</span><span class="line-price">${dispPrice}</span></div>`;
       });
       fixedTotal+=subtotal;
     }

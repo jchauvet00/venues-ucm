@@ -70,6 +70,10 @@
   .gt-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;}
   .gt-amount{font-size:22px;font-weight:800;color:var(--gold);}
 
+  .notes-section{margin:0 18px 20px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+  .notes-label{background:#3A5A7A;color:white;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:.5px;}
+  .notes-body{padding:12px 16px;font-size:13px;color:var(--muted);background:#F7FAFD;line-height:1.6;white-space:pre-wrap;min-height:40px;}
+
   footer{text-align:center;padding:24px;font-size:12px;color:#888;background:var(--panel);margin-top:8px;}
 </style>
 </head>
@@ -104,9 +108,10 @@ const CATS_META = {
   audio:       {icon:'🎙️', label:'Audio'},
   iluminacion: {icon:'💡', label:'Iluminacion'},
   mobiliario:  {icon:'🪑', label:'Mobiliario'},
+  extras:      {icon:'⚡', label:'Extras'},
   catering:    {icon:'🍽️', label:'Catering'},
 };
-const CATS_ORDER = ['renta','video','audio','iluminacion','mobiliario','catering'];
+const CATS_ORDER = ['renta','video','audio','iluminacion','mobiliario','extras','catering'];
 
 const VENUES_META = {
   inspace: {nombre:'Inspace',     css:'inspace'},
@@ -210,6 +215,14 @@ function buildCard(sheetName, rows, meta) {
 
   fixedTotals[cid] = fixedTotal;
 
+  // Notes
+  const notaRow = rows.find(r => r.tipo === 'nota');
+  const notaText = notaRow && notaRow.conc ? notaRow.conc : '';
+  const notaSection = `<div class="notes-section">
+    <div class="notes-label">📝 Notas</div>
+    <div class="notes-body">${notaText || '<span class="tbd">Sin notas</span>'}</div>
+  </div>`;
+
   return `<div class="venue-card">
     <div class="venue-header ${vm.css}">
       <h2>${vm.nombre}</h2>
@@ -221,6 +234,7 @@ function buildCard(sheetName, rows, meta) {
       <span class="gt-label">Total estimado</span>
       <span class="gt-amount" id="${cid}-grand">${pesosPlain(fixedTotal)}</span>
     </div>
+    ${notaSection}
   </div>`;
 }
 

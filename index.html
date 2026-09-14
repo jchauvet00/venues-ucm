@@ -58,6 +58,7 @@
   .line-desc{color:var(--muted);}
   .line-price{font-weight:600;}
   .tbd{color:#C0BDB8;font-style:italic;font-weight:400;}
+  .badge-incluido{display:inline-block;background:#2D6A4F;color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.4px;}
 
   .cat-opts{display:flex;flex-direction:column;}
   .cat-opt{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border);cursor:pointer;}
@@ -129,15 +130,20 @@ const SHEET_VENUE = {
 
 const fixedTotals = {};
 
-function pesos(n) {
-  if (!n || Number(n) === 0) return '<span class="tbd">Por cotizar</span>';
-  return '$ ' + Number(n).toLocaleString('es-MX', {minimumFractionDigits:0});
+function isIncluido(v) { return typeof v === 'string' && v.trim().toUpperCase() === 'INCLUIDO'; }
+function pesos(v) {
+  if (isIncluido(v)) return '<span class="badge-incluido">✓ Incluido</span>';
+  const n = Number(v);
+  if (!n) return '<span class="tbd">Por cotizar</span>';
+  return '$ ' + n.toLocaleString('es-MX', {minimumFractionDigits:0});
 }
-function pesosPlain(n) {
-  if (!n || Number(n) === 0) return 'Por cotizar';
-  return '$ ' + Number(n).toLocaleString('es-MX', {minimumFractionDigits:0});
+function pesosPlain(v) {
+  if (isIncluido(v)) return '✓ Incluido';
+  const n = Number(v);
+  if (!n) return 'Por cotizar';
+  return '$ ' + n.toLocaleString('es-MX', {minimumFractionDigits:0});
 }
-function toNum(v) { return Number(v) || 0; }
+function toNum(v) { return isIncluido(v) ? 0 : (Number(v) || 0); }
 
 // Parse rows from a sheet (array of arrays after header row)
 function parseSheetRows(sheetData) {
@@ -157,7 +163,8 @@ function parseSheetRows(sheetData) {
     const cat   = String(r[0] || '').trim();
     const conc  = String(r[1] || '').trim();
     const tipo  = String(r[2] || '').trim();
-    const precio = toNum(r[3]);
+    const rawPrecio = r[3];
+    const precio = (typeof rawPrecio === 'string' && rawPrecio.trim().toUpperCase() === 'INCLUIDO') ? 'INCLUIDO' : toNum(rawPrecio);
     if (!tipo || tipo === 'header' || !cat) continue;
     rows.push({cat, conc, tipo, precio});
   }

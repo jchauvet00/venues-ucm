@@ -1,5 +1,679 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><title>Venues UCM 32 Años</title></head>
-<body><h1>Cargando presentación...</h1></body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venues — UCM 32 Aniversario</title>
+<style>
+  :root {
+    --wine: #A84055;
+    --wine-dark: #8A3346;
+    --gold: #C9BB7A;
+    --dark: #0A0A0A;
+    --panel: #161616;
+    --bg: #F4F2EF;
+    --card: #FFFFFF;
+    --text: #1A1A1A;
+    --muted: #6B6B6B;
+    --border: #E4E1DA;
+    --marquis: #5A4A7A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+
+  /* ── HEADER ── */
+  header { background: var(--dark); padding: 36px 24px 0; text-align: center; }
+  .logo-pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: white; border-radius: 14px;
+    padding: 14px 36px; margin-bottom: 0;
+  }
+  .logo-pill img { height: 60px; display: block; }
+  .header-stripe {
+    height: 5px;
+    background: linear-gradient(90deg, var(--wine) 0%, var(--gold) 50%, var(--wine) 100%);
+    margin-top: 28px;
+  }
+  .header-sub {
+    background: var(--panel);
+    text-align: center;
+    padding: 14px 24px;
+    color: #888;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .header-sub strong { color: var(--gold); letter-spacing: 1px; }
+
+  /* ── TABS ── */
+  .day-nav {
+    background: var(--panel);
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px 16px;
+    border-bottom: 1px solid #2A2A2A;
+  }
+  .day-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #777;
+    padding: 10px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    transition: all 0.18s;
+  }
+  .day-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .day-btn.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--dark);
+  }
+
+  /* ── DAY SECTIONS ── */
+  .day-section { display: none; }
+  .day-section.active { display: block; }
+
+  .venues-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 760px) { .venues-grid { grid-template-columns: 1fr; } }
+
+  /* ── VENUE CARD ── */
+  .venue-card {
+    background: var(--card);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.09);
+  }
+  .venue-header {
+    padding: 22px 24px 18px;
+    color: white;
+    position: relative;
+  }
+  .venue-header.inspace { background: var(--wine); }
+  .venue-header.camino  { background: #3A5A6A; }
+  .venue-header.marquis { background: var(--marquis); }
+  .venue-header h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+  .venue-header .vh-sub { font-size: 12px; opacity: 0.7; margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .venue-badge {
+    position: absolute; top: 18px; right: 20px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── CATEGORY ROWS ── */
+  .cat-row { border-bottom: 1px solid var(--border); }
+  .cat-row:last-of-type { border-bottom: none; }
+
+  details summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 22px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary:hover { background: #FAFAF8; }
+
+  .cat-left { display: flex; align-items: center; gap: 11px; }
+  .cat-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: #F0EDE8;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .cat-name { font-weight: 600; font-size: 14px; color: var(--text); }
+
+  .cat-right { display: flex; align-items: center; gap: 10px; }
+  .cat-total-amt { font-weight: 700; font-size: 15px; color: var(--text); }
+  .cat-arrow { font-size: 10px; color: var(--muted); transition: transform 0.2s; }
+  details[open] .cat-arrow { transform: rotate(180deg); }
+
+  .cat-body { padding: 0 22px 14px; }
+  .cat-note { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-style: italic; }
+
+  /* ── LINE ITEMS ── */
+  .line { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13.5px; }
+  .line:last-child { border-bottom: none; }
+  .line-desc { color: var(--muted); }
+  .line-price { font-weight: 600; color: var(--text); }
+
+  /* ── CATERING OPTIONS ── */
+  .cat-opts { display: flex; flex-direction: column; gap: 2px; }
+  .cat-opt {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 11px 0; border-bottom: 1px dashed var(--border);
+  }
+  .cat-opt:last-child { border-bottom: none; }
+  .cat-opt input[type="radio"] { margin-top: 3px; accent-color: var(--wine); cursor: pointer; }
+  .cat-opt-info { flex: 1; }
+  .cat-opt-name { font-size: 14px; font-weight: 600; display: block; }
+  .cat-opt-desc { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; }
+  .cat-opt-price { font-weight: 700; font-size: 14px; color: var(--wine); white-space: nowrap; margin-top: 2px; }
+
+  /* ── GRAND TOTAL ── */
+  .grand-total-row {
+    margin: 4px 18px 20px;
+    background: var(--dark);
+    border-radius: 11px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .grand-total-row .gt-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .grand-total-row .gt-amount { font-size: 22px; font-weight: 800; color: var(--gold); }
+
+  /* ── UTILITY ── */
+  .placeholder { color: #bbb; font-style: italic; font-size: 13px; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header>
+  <div class="logo-pill">
+    <img src="logo-ucm.png" alt="Unión de Crédito Mexicano">
+  </div>
+  <div class="header-stripe"></div>
+</header>
+<div class="header-sub">
+  32 Aniversario &nbsp;·&nbsp; <strong>Comparativa de Venues</strong>
+</div>
+
+<!-- ═══════════════════════ TABS ═══════════════════════ -->
+<nav class="day-nav">
+  <button class="day-btn active" onclick="showDay('day15', this)">15 Octubre</button>
+  <button class="day-btn" onclick="showDay('day16', this)">16 Octubre</button>
+</nav>
+
+<!-- ═══════════════════════ DÍA 15 ═══════════════════════ -->
+<div id="day15" class="day-section active">
+  <div class="venues-grid">
+
+    <!-- ─── INSPACE (Día 15) ─── -->
+    <div class="venue-card">
+      <div class="venue-header inspace">
+        <h2>Inspace</h2>
+        <div class="vh-sub">Venue 1 · 15 de octubre</div>
+        <span class="venue-badge">V1</span>
+      </div>
+
+      <!-- Renta -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🏛️</span><span class="cat-name">Renta de Venue</span></span>
+            <span class="cat-right"><span class="cat-total-amt" id="d15i-renta">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Renta de espacio</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Depósito / garantía</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Video -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎬</span><span class="cat-name">Video</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Pantallas / proyectores</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Cámara / grabación</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Operador técnico</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Audio -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎙️</span><span class="cat-name">Audio</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Sistema de sonido</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Micrófonos (inalámbricos)</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Ingeniería de audio</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Iluminación -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">💡</span><span class="cat-name">Iluminación</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Iluminación ambiental</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Cabezas móviles / efectos</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Técnico de iluminación</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Mobiliario -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🪑</span><span class="cat-name">Mobiliario</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Mesas</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Sillas / lounge</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Podios / atril</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Otros muebles</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Catering -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🍽️</span><span class="cat-name">Catering</span></span>
+            <span class="cat-right"><span class="cat-total-amt" id="d15i-cat-disp">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <p class="cat-note">Selecciona la opción que mejor se adapte:</p>
+            <div class="cat-opts">
+              <label class="cat-opt">
+                <input type="radio" name="d15i-cat" value="0" onchange="pickCat('d15i-cat-disp',0)">
+                <div class="cat-opt-info">
+                  <span class="cat-opt-name">Opción A — Por definir</span>
+                  <span class="cat-opt-desc">Detalles pendientes de cotización</span>
+                </div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+              <label class="cat-opt">
+                <input type="radio" name="d15i-cat" value="0" onchange="pickCat('d15i-cat-disp',0)">
+                <div class="cat-opt-info">
+                  <span class="cat-opt-name">Opción B — Por definir</span>
+                  <span class="cat-opt-desc">Detalles pendientes de cotización</span>
+                </div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="grand-total-row">
+        <span class="gt-label">Total estimado</span>
+        <span class="gt-amount">Por cotizar</span>
+      </div>
+    </div>
+
+    <!-- ─── CAMINO REAL (Día 15) ─── -->
+    <div class="venue-card">
+      <div class="venue-header camino">
+        <h2>Camino Real</h2>
+        <div class="vh-sub">Venue 2 · 15 de octubre</div>
+        <span class="venue-badge">V2</span>
+      </div>
+
+      <!-- Renta -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🏛️</span><span class="cat-name">Renta de Venue</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Renta de espacio</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Depósito / garantía</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Video -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎬</span><span class="cat-name">Video</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Pantallas / proyectores</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Cámara / grabación</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Operador técnico</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Audio -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎙️</span><span class="cat-name">Audio</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Sistema de sonido</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Micrófonos (inalámbricos)</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Ingeniería de audio</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Iluminación -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">💡</span><span class="cat-name">Iluminación</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Iluminación ambiental</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Cabezas móviles / efectos</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Técnico de iluminación</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Mobiliario -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🪑</span><span class="cat-name">Mobiliario</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Mesas</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Sillas / lounge</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Podios / atril</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Otros muebles</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Catering -->
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🍽️</span><span class="cat-name">Catering</span></span>
+            <span class="cat-right"><span class="cat-total-amt" id="d15c-cat-disp">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <p class="cat-note">Selecciona la opción que mejor se adapte:</p>
+            <div class="cat-opts">
+              <label class="cat-opt">
+                <input type="radio" name="d15c-cat" value="0" onchange="pickCat('d15c-cat-disp',0)">
+                <div class="cat-opt-info">
+                  <span class="cat-opt-name">Opción A — Por definir</span>
+                  <span class="cat-opt-desc">Detalles pendientes de cotización</span>
+                </div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+              <label class="cat-opt">
+                <input type="radio" name="d15c-cat" value="0" onchange="pickCat('d15c-cat-disp',0)">
+                <div class="cat-opt-info">
+                  <span class="cat-opt-name">Opción B — Por definir</span>
+                  <span class="cat-opt-desc">Detalles pendientes de cotización</span>
+                </div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="grand-total-row">
+        <span class="gt-label">Total estimado</span>
+        <span class="gt-amount">Por cotizar</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ DÍA 16 ═══════════════════════ -->
+<div id="day16" class="day-section">
+  <div class="venues-grid">
+
+    <!-- ─── INSPACE (Día 16) ─── -->
+    <div class="venue-card">
+      <div class="venue-header inspace">
+        <h2>Inspace</h2>
+        <div class="vh-sub">Venue 1 · 16 de octubre</div>
+        <span class="venue-badge">V1</span>
+      </div>
+
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🏛️</span><span class="cat-name">Renta de Venue</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Renta de espacio</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Depósito / garantía</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎬</span><span class="cat-name">Video</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Pantallas / proyectores</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Cámara / grabación</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎙️</span><span class="cat-name">Audio</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Sistema de sonido</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Micrófonos</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">💡</span><span class="cat-name">Iluminación</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Iluminación ambiental</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Efectos / cabezas móviles</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🪑</span><span class="cat-name">Mobiliario</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Mesas</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Sillas / lounge</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Otros muebles</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🍽️</span><span class="cat-name">Catering</span></span>
+            <span class="cat-right"><span class="cat-total-amt" id="d16i-cat-disp">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <p class="cat-note">Selecciona la opción que mejor se adapte:</p>
+            <div class="cat-opts">
+              <label class="cat-opt">
+                <input type="radio" name="d16i-cat" value="0" onchange="pickCat('d16i-cat-disp',0)">
+                <div class="cat-opt-info"><span class="cat-opt-name">Opción A — Por definir</span><span class="cat-opt-desc">Detalles pendientes</span></div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+              <label class="cat-opt">
+                <input type="radio" name="d16i-cat" value="0" onchange="pickCat('d16i-cat-disp',0)">
+                <div class="cat-opt-info"><span class="cat-opt-name">Opción B — Por definir</span><span class="cat-opt-desc">Detalles pendientes</span></div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="grand-total-row">
+        <span class="gt-label">Total estimado</span>
+        <span class="gt-amount">Por cotizar</span>
+      </div>
+    </div>
+
+    <!-- ─── MARQUÍS (Día 16) ─── -->
+    <div class="venue-card">
+      <div class="venue-header marquis">
+        <h2>Marquís</h2>
+        <div class="vh-sub">Venue 2 · 16 de octubre</div>
+        <span class="venue-badge">V2</span>
+      </div>
+
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🏛️</span><span class="cat-name">Renta de Venue</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Renta de espacio</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Depósito / garantía</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎬</span><span class="cat-name">Video</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Pantallas / proyectores</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Cámara / grabación</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🎙️</span><span class="cat-name">Audio</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Sistema de sonido</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Micrófonos</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">💡</span><span class="cat-name">Iluminación</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Iluminación ambiental</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Efectos / cabezas móviles</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🪑</span><span class="cat-name">Mobiliario</span></span>
+            <span class="cat-right"><span class="cat-total-amt">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <div class="line"><span class="line-desc">Mesas</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Sillas / lounge</span><span class="line-price placeholder">Por cotizar</span></div>
+            <div class="line"><span class="line-desc">Otros muebles</span><span class="line-price placeholder">Por cotizar</span></div>
+          </div>
+        </details>
+      </div>
+      <div class="cat-row">
+        <details>
+          <summary>
+            <span class="cat-left"><span class="cat-icon">🍽️</span><span class="cat-name">Catering</span></span>
+            <span class="cat-right"><span class="cat-total-amt" id="d16m-cat-disp">$ —</span><span class="cat-arrow">▼</span></span>
+          </summary>
+          <div class="cat-body">
+            <p class="cat-note">Selecciona la opción que mejor se adapte:</p>
+            <div class="cat-opts">
+              <label class="cat-opt">
+                <input type="radio" name="d16m-cat" value="0" onchange="pickCat('d16m-cat-disp',0)">
+                <div class="cat-opt-info"><span class="cat-opt-name">Opción A — Por definir</span><span class="cat-opt-desc">Detalles pendientes</span></div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+              <label class="cat-opt">
+                <input type="radio" name="d16m-cat" value="0" onchange="pickCat('d16m-cat-disp',0)">
+                <div class="cat-opt-info"><span class="cat-opt-name">Opción B — Por definir</span><span class="cat-opt-desc">Detalles pendientes</span></div>
+                <span class="cat-opt-price">$ —</span>
+              </label>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="grand-total-row">
+        <span class="gt-label">Total estimado</span>
+        <span class="gt-amount">Por cotizar</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer style="text-align:center; padding:24px; font-size:12px; color:#aaa; background:var(--panel); margin-top:8px;">
+  Unión de Crédito Mexicano &nbsp;·&nbsp; 32 Aniversario 2026 &nbsp;·&nbsp; Uso interno
+</footer>
+
+<script>
+  function showDay(id, btn) {
+    document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function pickCat(displayId, amount) {
+    const el = document.getElementById(displayId);
+    el.textContent = amount > 0
+      ? '$ ' + amount.toLocaleString('es-MX', {minimumFractionDigits: 0})
+      : '$ —';
+  }
+</script>
+</body>
 </html>

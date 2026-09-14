@@ -125,14 +125,30 @@ function tabUrl(key){
 }
 
 function isIncluido(v){ return typeof v==='string' && v.trim().toUpperCase()==='INCLUIDO'; }
-// Google Sheets exports prices with MX locale: "$351.480" (period = thousands sep, $ prefix)
-// Strip $ and periods (thousands), replace comma with dot for JS parseFloat
+// Handles all common number formats from Google Sheets:
+//   "$351.480"   → 351480  (MX: period=thousands, no decimals)
+//   "$30,000.00" → 30000   (US: comma=thousands, period=decimal)
+//   "30000"      → 30000   (raw number)
 function parsePrice(v){
   if(!v && v!==0) return null;
   const s=String(v).trim();
   if(!s) return null;
-  const clean=s.replace(/\$/g,'').replace(/\./g,'').replace(/,/g,'.');
-  const n=parseFloat(clean);
+  let c=s.replace(/[$€£\s]/g,'');
+  if(!c) return null;
+  const ci=c.lastIndexOf(','), di=c.lastIndexOf('.');
+  if(ci!==-1 && di!==-1){
+    // Both separators: last one is the decimal
+    c = di>ci ? c.replace(/,/g,'') : c.replace(/\./g,'').replace(',','.');
+  } else if(di!==-1 && ci===-1){
+    // Only dot: if exactly 3 digits follow → MX thousands separator, else decimal
+    const after=c.slice(di+1);
+    if(/^\d{3}$/.test(after)) c=c.replace(/\./g,'');
+  } else if(ci!==-1 && di===-1){
+    // Only comma: if exactly 3 digits follow → thousands, else decimal
+    const after=c.slice(ci+1);
+    c = /^\d{3}$/.test(after) ? c.replace(/,/g,'') : c.replace(',','.');
+  }
+  const n=parseFloat(c);
   return isNaN(n)?null:n;
 }
 function fmt(v){
